@@ -63,7 +63,7 @@ lyap_exps = []
 mean_lyaps = []
 lyap_errs = []
 mags = []
-for delta in deltas[4:-2]:
+for delta in deltas[2:-2]:
     N=100
     mags.append(np.mean(magnetizations[N][delta]))
     """Lyaps"""
@@ -80,7 +80,7 @@ if True and (N==500 or N==100):
     
     #plt.scatter(hams_lyap,np.array(mean_lyaps), marker='x')
     
-    start = 0
+    start = 2
     end = None
     hams_lyap_log = np.log(hams_lyap)
     mean_lyaps_log = np.log(mean_lyaps)

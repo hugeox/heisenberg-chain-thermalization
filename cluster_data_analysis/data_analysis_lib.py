@@ -89,7 +89,10 @@ def plot_means(data, N, observable, method, fit_range=None, plot = True,multipli
 
     cmap=plt.get_cmap('tab10')
     therm_times=data[observable+method][N]
-    prefix = r"$\overline{T_{therm}}$" + " {}, method: {}".format(observable,method)
+    if multiplier ==1:
+        prefix = str(multiplier) + r"$\overline{T_{therm}}$" + " {}, method: {}".format(observable,method)
+    else:
+        prefix =  r"$\overline{T_{therm}}$" + " {}, method: {}".format(observable,method)
 
 
     """Getting time at which average goes over threshold"""
@@ -147,7 +150,10 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
     plt.ylabel("Thermalization time ")
     cmap=plt.get_cmap('tab10')
     therm_sequence = data[observable][N]
-    prefix = r"$T_{therm}$ from $\overline{\mathcal{O}(t)}, $" + " {}, method: {}".format(observable,method)
+    if multiplier ==1:
+        prefix = r"$T_{therm}$ from $\overline{\mathcal{O}(t)}, $" + " {}, method: {}".format(observable,method)
+    else:
+        prefix = str(multiplier) + r"$ T_{therm}$ from $\overline{\mathcal{O}(t)}, $" + " {}, method: {}".format(observable,method)
 
     """Getting time at which average goes over threshold"""
     mean_therm_times =[]

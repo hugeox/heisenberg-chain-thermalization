@@ -103,12 +103,17 @@ def generate_data(Ns, deltas, n_evals,evals,OBS_TEMPLATE, LYAP_TEMPLATE = "{}_{}
             magnetizations[N][delta] =[]
             angles[N][delta] =[]
     mag_vals = {0.0: 0.33332738590880195, 0.025: 0.33307956586891685, 0.05: 0.3326564798699867, 0.07500000000000001: 0.3320883979754039, 0.1: 0.3313545522832395, 0.125: 0.3302569822117752, 0.15000000000000002: 0.3290837899991117, 0.17500000000000002: 0.327625550776773, 0.2: 0.32559085983104563, 0.225: 0.32329927512893614 }
+    mags = [0,25,50,75,100,125,150,175,200,225]
     for N in Ns:
         for delta in deltas:
             print("Processing observables for N: ", N, ", delta: ",delta)
             obses = {}
+            obses_mag = {}
             for obs in observables:
                 obses[obs]=[]
+                obses_mag[obs]={}
+                for mag in mags:
+                    obses_mag[obs][mag]=[]
 
             for batch_no in range(evals):
 
@@ -120,19 +125,18 @@ def generate_data(Ns, deltas, n_evals,evals,OBS_TEMPLATE, LYAP_TEMPLATE = "{}_{}
                 t_odes[N][delta] = t_ode
                 for i in range(starting_counter, starting_counter + n_evals):
                     s0 = np.array(f_obs["s0"][S0_TEMPLATE.format(i)])
-                    #mag = np.linalg.norm(spinlib.return_magnetization(s0))
-                    #if mag> 0.06:
-                    #    continue
-                    magnetizations[N][delta].append(np.linalg.norm(spinlib.return_magnetization(s0)))
+                    mag = np.linalg.norm(spinlib.return_magnetization(s0))
+                    magnetizations[N][delta].append(mag)
                     angles[N][delta].append(spinlib.compute_angle(s0)/np.pi/2)
                     for observable in observables:
                         obs = np.array(f_obs[observable][OBSERVABLE_DATASET_TEMPLATE.format(observable,i)])
                         obses[observable].append(obs)
+                        mag_truncated = return_closest(1000*mag,mags)
+                        obses_mag[observable][mag_truncated].append(obs)
                         for method in methods:
                             if observable == "bondz_mean":
-                                limit = (1 - 0.001*delta)/3
+                                limit = (1 - 0.001*delta)/3 
                             else:
-                                mag = np.linalg.norm(spinlib.return_magnetization(s0))
                                 limit = 0.33333
                                 limit = mag_vals[return_closest(mag,mag_vals.keys())]
                             if method[:3]=="rel":
@@ -161,6 +165,10 @@ def generate_data(Ns, deltas, n_evals,evals,OBS_TEMPLATE, LYAP_TEMPLATE = "{}_{}
                 f_obs.close()
             for observable in observables:
                 therm_sequence_all[observable][N][delta]=np.mean(obses[observable],axis=0)
+                for mag in mags:
+                    therm_sequence_all[observable][N][1000*delta+mag] = \
+                                np.mean(obses_mag[observable][mag],axis = 0)
+                print(therm_sequence_all[observable][N])
 
     return t_odes,therm_times_all,lyaps,magnetizations,therm_sequence_all,angles
 
@@ -183,6 +191,7 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
     hams = []
     errs = []
     for delta in therm_sequence.keys():
+        
         temp_sum = 0
         for mag in mags[N][delta]:
             temp_sum += mag_vals[return_closest(mag,mag_vals.keys())]
@@ -234,16 +243,16 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
 
 
 pickle_name = "../data/mc_experiment.pickle"
-#pickle_name = "../data/low_m_experiment.pickle"
+pickle_name = "../data/mc_binned_experiment.pickle"
 
 PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
 
 LYAP_TEMPLATE = PATH_TEMPLATE + "/lyaps/lyap_{}.hdf5"
 OBS_TEMPLATE = PATH_TEMPLATE + "/observables/re_observables_{}_{}.hdf5"  
 
-use_cache = False
+use_cache = True
 
-deltas = [20,40,100,150,200,250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]
+deltas = [100,150,200,250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900]
 Ns =[1000]
 number_of_batches =200 #number of batches
 n_evals = 100
@@ -270,7 +279,7 @@ print([len(magnetizations[1000][x]) for x in magnetizations[1000].keys()])
 
 cmap=plt.get_cmap('tab10')
 data_analysis_lib.full()
-if False:
+if True:
     observable = "s_z_var"
 
     #plot_smoothed(therm_sequence_all,N,observable,"abs0.02",t_odes,fit_range = (2,15),mags = magnetizations)
@@ -292,6 +301,8 @@ plt.ylabel("Thermalization time ")
 
 plt.show()
 
+
+
 mags =[]
 hams_lyap =[]
 for delta in magnetizations[1000].keys():
@@ -307,9 +318,73 @@ plt.xlabel(r"$\delta$ = 1 + $\epsilon$")
 plt.legend()
 plt.show()
 
+
+"""
+different triggers difference for averaged time evolution
+
+"""
+mags = [0,25,50,75,100,125,150,175,200,225]
+mags_red = []
+mag_vals = {0.0: 0.33332738590880195, 0.025: 0.33307956586891685, 0.05: 0.3326564798699867, 0.07500000000000001: 0.3320883979754039, 0.1: 0.3313545522832395, 0.125: 0.3302569822117752, 0.15000000000000002: 0.3290837899991117, 0.17500000000000002: 0.327625550776773, 0.2: 0.32559085983104563, 0.225: 0.32329927512893614 }
+mean_therm_times = []
+delta = 200
+N = 1000
+observable = "s_z_var"
+therm_sequence = therm_sequence_all[observable][N]
+for m in mags:
+    limit = mag_vals[return_closest(m/1000,mag_vals.keys())]
+    print(m,limit)
+    threshold = limit -0.03
+    if type(therm_sequence[1000*delta+m])!=np.float64:
+        mags_red.append(m/1000)
+        if therm_sequence[1000*delta+m][-1] > threshold:
+            index = np.where(therm_sequence[1000*delta+m] > threshold) [0][0]
+            t_therm = t_odes[N][delta] * (index) / len(therm_sequence[delta])
+            mean_therm_times.append(t_therm)
+        else:
+            mean_therm_times.append(np.inf)
+
+plt.scatter(mags_red,mean_therm_times,
+            label = r"Binned $T_{therm}$ by magnetization from $\overline{\mathcal{O}}(t,|\vec{m}|)$, using $\mathcal{O}_{MC}(|\vec{m}|)$ " )
+mags_red = []
+mean_therm_times = []
+for m in mags:
+    #limit = mag_vals[return_closest(m/1000,mag_vals.keys())]
+    limit = 0.33333333
+    print(m,limit)
+    threshold = limit -0.03
+    if type(therm_sequence[1000*delta+m])!=np.float64:
+        mags_red.append(m/1000)
+        if therm_sequence[1000*delta+m][-1] > threshold:
+            index = np.where(therm_sequence[1000*delta+m] > threshold) [0][0]
+            t_therm = t_odes[N][delta] * (index) / len(therm_sequence[delta])
+            mean_therm_times.append(t_therm)
+        else:
+            mean_therm_times.append(np.inf)
+
+plt.scatter(mags_red,mean_therm_times,
+            label = r"Binned $T_{therm}$ by magnetization from $\overline{\mathcal{O}}(t,|\vec{m}|)$, using 1/3 " )
+#plotting average t_therm
+threshold = 0.33333333 - 0.03
+if therm_sequence[delta][-1] > threshold:
+    index = np.where(therm_sequence[delta] > threshold) [0][0]
+    t_therm = t_odes[N][delta] * (index) / len(therm_sequence[delta])
+else:
+    t_therm = np.inf
+plt.plot([0,max(mags_red)],[t_therm,t_therm],label = "$T_{therm}$ from $\overline{\mathcal{O}}(t)$, using 1/3")
+
+plt.grid()
+plt.legend()
+plt.ylabel(r"$T_{therm}$ ")
+plt.xlabel(r"$\overline{|\vec{m}|}$")
+plt.show()
+
+plt.show()
 exit()
+
 """ 
 Checking difference betweeen triggering with 1/3 and triggering with Monte Carlo average
+for method of averaging thermalization times(not trajectories)
 """
 pickle_name_2 = "cache/var_triggers_all_new.pickle" #this pickle's therm_times_all have been triggered with 1/3
 with open(pickle_name_2, 'rb') as fp:

@@ -72,26 +72,46 @@ data_analysis_lib.full()
 if False:
     observable = "s_z_var"
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02",
-                              t_odes,fit_range = (2,16), multiplier =1000)
+                              t_odes,fit_range = (2,16), multiplier =1)
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",
-                              t_odes,fit_range = (2,16), multiplier =100)
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.01",
-    #                          t_odes,fit_range = (3,10), multiplier =100)
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (5,13),multiplier =10)
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,500,observable,"abs0.01",t_odes,fit_range = (2,12))
-    #data_analysis_lib.plot_means(therm_times_all,N,observable,"abs0.03",fit_range = (5,13), multiplier = 0.1)
-    data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (3,15), multiplier = 0.01)
-    #data_analysis_lib.plot_means(therm_times_all,N,observable,"abs",fit_range = (2,15), multiplier = 0.0001)
+                              t_odes,fit_range = (2,16), multiplier =1)
+    data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (2,15), multiplier = 0.1)
     plt.suptitle(r"$\operatorname{Var}_z$ ")
-    #data_analysis_lib.plot_means(therm_times_all,500,observable,"rel",fit_range = (0,8))
 else:
     observable = "bondz_mean"
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02",
                               t_odes,fit_range = (2,11), multiplier =1)
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (2,10),multiplier =1)
+    data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (2,11), multiplier = 0.1)
     plt.suptitle(r"$\epsilon_z$ ")
     
 
+
+
+hams_lyap = []
+lyap_exps = []
+mean_lyaps = []
+lyap_errs = []
+for delta in list(deltas)[1:]: #start further due to huge error 
+    N=500
+    """Lyaps"""
+    if delta < 1000:
+        hams_lyap.append(0.001*delta)
+    else:
+        continue
+        hams_lyap.append(2-0.001*delta)
+    #mean_lyaps.append(0.1*np.mean(lyaps[N][delta]))
+    print(delta, len(lyaps[N][delta]))
+    mean_lyaps.append(0.01*np.reciprocal(np.mean(lyaps[N][delta])))
+    lyap_errs.append(0.01*np.sqrt(np.var(np.reciprocal(lyaps[N][delta])))/len(lyaps[N][delta])**0.5)
+
+"""Plotting lyapunovs"""
+if True and (N==500 or N==100):
+    
+    #plt.scatter(hams_lyap,np.array(mean_lyaps), marker='x')
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.errorbar(hams_lyap, np.array(mean_lyaps),lyap_errs, label = "mean of Lyapunov times for N = " + str(N),linestyle = '--')
 
 plt.grid()
 plt.legend()
@@ -99,6 +119,7 @@ plt.xlabel(r"$\delta$ = 1 + $\epsilon$")
 plt.ylabel("Thermalization time ")
 
 plt.show()
+
 
 exit()
 
@@ -129,7 +150,6 @@ for delta in deltas:
         hams_lyap.append(0.001*delta)
     else:
         hams_lyap.append(2-0.001*delta)
-    #mean_lyaps.append(0.1*np.mean(lyaps[N][delta]))
     print(delta, len(lyaps[N][delta]))
     mean_lyaps.append(0.01*np.reciprocal(np.mean(lyaps[N][delta])))
     lyap_errs.append(0.01*np.sqrt(np.var(np.reciprocal(lyaps[N][delta])))/len(lyaps[N][delta])**0.5)

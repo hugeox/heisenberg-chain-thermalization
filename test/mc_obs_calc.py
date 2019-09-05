@@ -21,7 +21,7 @@ from observables import  s_z_var, bond_mean, bond_var, bond2_var, bond2_mean,bon
 import h5py
 
 
-N = 1000
+N = 100
 delta = 400
 starting_counter = 400
 n_evals = 100
@@ -29,7 +29,7 @@ print("N = ", N,", starting_counter = ", starting_counter,  ", n_evals = ", n_ev
 
 
 for i in range(3): #compute iteratively
-    for delta in [200,500,800]:
+    for delta in [250]:
         print("delta: ", delta)
         s_perp_vars = []
         bond_perp_means = []
