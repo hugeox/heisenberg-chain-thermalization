@@ -120,7 +120,7 @@ def plot_means(data, N, observable, method, fit_range=None, plot = True,multipli
             plt.plot(hams[start:end], multiplier*np.exp(ys[start:end]),color = cmap.colors[1])
             #, label = "N=" + str(N)+ ",exponent = " + str(coefficients[0])[:7])
             plt.scatter(hams,multiplier*np.array(mean_therm_times), label = prefix + " N = " + str(N) +
-                    ", exponent " + str(coefficients[0])[:7]+ ", resiuduals " +str(residuals[0])[:7])
+                    ", exponent " + str(coefficients[0])[:5]+ ", resiuduals " +str(residuals[0])[:5])
         else:
             plt.scatter(hams,mean_therm_times, label = prefix +", N = " + str(N))
     return dict(zip(hams,mean_therm_times))
@@ -190,7 +190,7 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
             plt.plot(hams[start:end], multiplier*np.exp(ys[start:end]),color = cmap.colors[1])
             #, label = "N=" + str(N)+ ",exponent = " + str(coefficients[0])[:7])
             plt.scatter(hams,multiplier*np.array(mean_therm_times), label = prefix + " N = " + str(N) +
-                    ", exponent " + str(coefficients[0])[:7] + ", resiuduals " +str(residuals[0])[:7])
+                    ", exponent " + str(coefficients[0])[:5] + ", resiuduals " +str(residuals[0])[:5])
         else:
             plt.scatter(hams,mean_therm_times, label = prefix + " N = " + str(N))
     return dict(zip(hams,mean_therm_times))
@@ -280,7 +280,7 @@ def generate_data(Ns, deltas, n_evals,evals,OBS_TEMPLATE, LYAP_TEMPLATE = "{}_{}
             angles[N][delta] =[]
     for N in Ns:
         for delta in deltas:
-            print(N,delta)
+            print("Processing observables for N: ", N, ", delta: ",delta)
             obses = {}
             for obs in observables:
                 obses[obs]=[]
@@ -288,11 +288,9 @@ def generate_data(Ns, deltas, n_evals,evals,OBS_TEMPLATE, LYAP_TEMPLATE = "{}_{}
             for batch_no in range(evals):
 
                 starting_counter = batch_no * n_evals
-                print(OBS_TEMPLATE.format(N,delta,starting_counter,n_evals))
                 if not os.path.isfile(OBS_TEMPLATE.format(N,delta,starting_counter,n_evals)):
                     continue
                 f_obs = h5py.File(OBS_TEMPLATE.format(N,delta,starting_counter,n_evals), 'r')
-                print(OBS_TEMPLATE.format(N,delta,starting_counter,n_evals))
                 t_ode = f_obs.attrs["t_ode"]
                 t_odes[N][delta] = t_ode
                 for i in range(starting_counter, starting_counter + n_evals):

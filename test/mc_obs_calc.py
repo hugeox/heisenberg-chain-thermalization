@@ -1,3 +1,8 @@
+"""
+Calculates observables in perpendicular directions to magnetization by 3D Canonical Monte Carlo,
+by first finding beta with given energy density and then sampling at that density
+"""
+
 import sys
 sys.path.append("../code")
 sys.path.append("..")
@@ -23,9 +28,8 @@ n_evals = 100
 print("N = ", N,", starting_counter = ", starting_counter,  ", n_evals = ", n_evals)
 
 
-for i in range(200):
-    print(i)
-    for delta in [200,250,300,350,400,450,500,550,600,650,700,750,800]:
+for i in range(3): #compute iteratively
+    for delta in [200,500,800]:
         print("delta: ", delta)
         s_perp_vars = []
         bond_perp_means = []
@@ -45,7 +49,7 @@ for i in range(200):
                 mags.append(spinlib.return_magnetization_norm(solver.s0))
                 s_perp_vars.append(s_perp_var(solver.s0))
                 bond_perp_means.append(bond_perp_mean(solver.s0))
-        f_out = h5py.File('data/mc_observables_{}_{}.hdf5'.format(delta,i), 'w')
+        f_out = h5py.File('../data/mc_observables_{}_{}.hdf5'.format(delta,i), 'w')
         f_out.create_dataset("mags",data = mags)
         f_out.create_dataset("s_perp_vars" ,data = s_perp_vars)
         f_out.create_dataset("bond_perp_means", data = bond_perp_means)

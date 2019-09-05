@@ -20,7 +20,7 @@ import scipy
 import pickle
 
 """
-To analyze observable thermalization as time progresses
+To analyze observable thermalization time dependence on energy density
 
 assumed directory structure:
     all data assumed stored in os.environ['CHAIN_PROJECT_DIR'] folder,
@@ -33,7 +33,7 @@ assumed directory structure:
 """
 
 
-pickle_name = "var_triggers_all_new.pickle"
+pickle_name = "../data/var_triggers_all_new.pickle"
 
 PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
 LYAP_TEMPLATE = PATH_TEMPLATE + "/lyaps/lyap_{}.hdf5"
@@ -45,7 +45,7 @@ deltas = [10,20,40,100,150,200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700
           950,1000,1050,1100,1150,1200,1250,1300,1350,1400,1450,1500,1550,1600,1650,1700,1750,1800,1850,
           1900,1960,1980,1990]
 Ns =[100,250,500,1000]
-number_of_batches =100 #number of batches
+number_of_batches = 200 #for N = 1000 - 200 batches, for others only 100, but it is not important
 n_evals = 100
 if os.path.isfile(pickle_name) and use_cache:
     print("Restoring cache named: ", pickle_name)
@@ -71,45 +71,26 @@ data_analysis_lib.full()
 
 if False:
     observable = "s_z_var"
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"rel0.9",t_odes,fit_range = (3,16))
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"rel0.8",t_odes,fit_range = (1,11),multiplier = 100)
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"rel0.7",t_odes,fit_range = (1,9))
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02",
-                              t_odes,fit_range = (3,10), multiplier =1000)
-    data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.01",
-                              t_odes,fit_range = (3,10), multiplier =100)
-    data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (3,10),multiplier =10)
+                              t_odes,fit_range = (2,16), multiplier =1000)
+    data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",
+                              t_odes,fit_range = (2,16), multiplier =100)
+    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.01",
+    #                          t_odes,fit_range = (3,10), multiplier =100)
+    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (5,13),multiplier =10)
     #data_analysis_lib.plot_smoothed(therm_sequence_all,500,observable,"abs0.01",t_odes,fit_range = (2,12))
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,500,observable,"rel0.8",t_odes,fit_range = (0,8))
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,500,observable,"rel0.9",t_odes,fit_range = (2,8))
-    #data_analysis_lib.plot_means(therm_times_all,N,observable,"abs0.03",fit_range = (2,12), multiplier = 0.1)
-    #data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (1,17), multiplier = 0.01)
+    #data_analysis_lib.plot_means(therm_times_all,N,observable,"abs0.03",fit_range = (5,13), multiplier = 0.1)
+    data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (3,15), multiplier = 0.01)
     #data_analysis_lib.plot_means(therm_times_all,N,observable,"abs",fit_range = (2,15), multiplier = 0.0001)
     plt.suptitle(r"$\operatorname{Var}_z$ ")
-    #data_analysis_lib.plot_means(therm_times_all,500,observable,"abs",fit_range = (2,20))
     #data_analysis_lib.plot_means(therm_times_all,500,observable,"rel",fit_range = (0,8))
 else:
     observable = "bondz_mean"
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02",
-                              t_odes,fit_range = (3,11), multiplier =1000)
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"rel0.8",t_odes,fit_range = (1,6),multiplier = 100)
-    data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (3,10),multiplier =10)
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"rel0.9",t_odes,fit_range = (1,6))
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.01",t_odes,fit_range = (6,14),
-    #                                multiplier = 0.1)
-    #Kdata_analysis_lib.plot_means(therm_times_all,N,observable,"abs0.03",fit_range = (1,14), multiplier = 0.1)
-    #Kdata_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (1,13), multiplier = 0.01)
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"rel0.7",t_odes,fit_range = (1,7),
-                                #multiplier = 0.001)
-    #Kdata_analysis_lib.plot_means(therm_times_all,N,observable,"abs",fit_range = (1,15), multiplier = 0.0001)
+                              t_odes,fit_range = (2,11), multiplier =1)
+    data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (2,10),multiplier =1)
     plt.suptitle(r"$\epsilon_z$ ")
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,500,observable,"abs0.01",t_odes,fit_range = (2,12))
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,500,observable,"rel0.8",t_odes,fit_range = (0,8))
-    #data_analysis_lib.plot_smoothed(therm_sequence_all,500,observable,"rel0.9",t_odes,fit_range = (2,8))
-    #data_analysis_lib.plot_means(therm_times_all,500,observable,"abs",fit_range = (2,20))
-    #data_analysis_lib.plot_means(therm_times_all,500,observable,"rel",fit_range = (0,8))
-
-
+    
 
 
 plt.grid()
@@ -118,6 +99,8 @@ plt.xlabel(r"$\delta$ = 1 + $\epsilon$")
 plt.ylabel("Thermalization time ")
 
 plt.show()
+
+exit()
 
 mags =[]
 hams_lyap =[]
@@ -160,3 +143,6 @@ if True and (N==500 or N==100):
     plt.grid()
     plt.errorbar(hams_lyap, np.array(mean_lyaps),lyap_errs, label = "mean of Lyapunov times for N = " + str(N),linestyle = '--')
 plt.show()
+
+
+

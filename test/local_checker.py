@@ -1,3 +1,9 @@
+""" 
+checking cluster data for individual ODE integrations
+assumes data present in os.environ['CHAIN_PROJECT_DIR']
++ lot of other stuff that is not that important including correlations of states
+
+"""
 import sys
 sys.path.append("../cluster_data_analysis")
 sys.path.append("../code")
@@ -9,7 +15,6 @@ import h5py
 import os
 
 
-""" checking cluster data for individual ODE integrations"""
 
 data_analysis_lib.half()
 delta = 1000

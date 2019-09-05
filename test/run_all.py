@@ -1,4 +1,12 @@
+"""
+Example run throguh initial state generation and ODE integration.
 
+For N = 200, n_evals = 100, number_of_batches = 5,deltas = [200,300,400,500,600,700,800], t_ode = 20
+    takes 1 hour on i7-8xxx
+If one wants to look at the computed data again, all they have to do is skip the 
+        for batch_no in range(number_of_batches) cycle
+
+"""
 import sys
 import os
 sys.path.append("..")
@@ -24,23 +32,24 @@ import h5py
 #betas calculated for N = 100 xy-model , assume same for different N
 betas = {800: 0.396728515625, 450: 1.319580078125, 900: 0.181884765625, 100: 5.387500000000001, 950: 0.057373046875, 550: 0.975341796875, 200: 2.855224609375, 10: 53.6, 300: 2.061767578125, 750: 0.511474609375, 400: 1.485595703125, 40: 13.049999999999999, 850: 0.299072265625, 20: 26.6, 150: 3.599853515625, 600: 0.860595703125, 500: 1.192626953125, 250: 2.379150390625, 700: 0.614013671875, 650: 0.736083984375, 350: 1.744384765625, 1000: 0, 1050: -0.057373046875, 1100: -0.181884765625, 1150: -0.299072265625, 1200: -0.396728515625, 1250: -0.511474609375, 1300: -0.614013671875, 1350: -0.736083984375, 1400: -0.860595703125, 1450: -0.975341796875, 1500: -1.192626953125, 1550: -1.319580078125, 1600: -1.485595703125, 1650: -1.744384765625, 1700: -2.061767578125, 1750: -2.379150390625, 1800: -2.855224609375, 1850: -3.599853515625, 1900: -5.387500000000001, 1960: -13.049999999999999, 1980: -26.6, 1990: -53.6,80:6.6,120:4.37,140:3.856,180:3.06}
 
-Ns = [50]
+Ns = [200]
 n_evals = 100
 number_of_batches = 5
 
 S0_TEMPLATE = 's0_{}'
 SF_TEMPLATE = 'sf_{}'
 OBSERVABLE_DATASET_TEMPLATE = '{}_{}'
-OBS_TEMPLATE = 're_observables_N_{}_delta_{}_{}_{}.hdf5'
+OBS_TEMPLATE = '../data/re_observables_N_{}_delta_{}_{}_{}.hdf5'
 
 deltas = [200,300,400,500,600,700,800]
+st = time.time()
 for batch_no in range(number_of_batches):
     starting_counter = batch_no * n_evals
     for N in Ns:
         for delta in deltas:
             s0_factory.get_s0_xy_mc(N = N, delta = delta, beta = betas[delta], starting_counter = starting_counter, n_evals =n_evals)
 
-            t_ode = 200
+            t_ode = 50
             n_evals_ode = 400/t_ode
 
             f_in = h5py.File('s0_{}_{}.hdf5'.format(starting_counter,n_evals), 'r')
@@ -72,6 +81,9 @@ for batch_no in range(number_of_batches):
                     f_out[y].create_dataset(OBSERVABLE_DATASET_TEMPLATE.format(y,i), data = x)
             f_in.close()
             f_out.close()
+end = time.time()
+print("Time taken for getting initial states and solving ODE in seconds: ", end -st)
+
 
 t_odes,therm_times_all,lyaps,magnetizations,therm_sequence_all,angles =\
                         data_analysis_lib.generate_data(Ns, deltas,
@@ -80,13 +92,11 @@ N=Ns[0]
 deltas = t_odes[Ns[0]].keys()
 
 observable = "s_z_var"
+observable = "bondz_mean"
 plt.xscale("log")
 plt.yscale("log")
 data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",
-                          t_odes,fit_range = (0,-1))
-
-#plt.xscale("linear")
-#plt.yscale("linear")
+                          t_odes,fit_range = (0,None))
 
 plt.grid()
 plt.legend()
@@ -95,3 +105,4 @@ plt.ylabel("Thermalization time ")
 
 plt.grid()
 plt.show()
+

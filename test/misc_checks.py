@@ -1,3 +1,8 @@
+"""
+Misc checks on cluster data
+Assumes cluster data present in os.environ['CHAIN_PROJECT_DIR']
+
+"""
 import sys
 import os
 sys.path.append("..")
@@ -20,14 +25,11 @@ import spin_solver
 import scipy
 import pickle
 
-"""
-Misc checks 
-"""
 
 def test_1():
     """To test magnetization dependence of Lyapunovs"""
     N=500
-    delta = 1990
+    delta = 100
     S0_TEMPLATE = 's0_{}'
     PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
     LYAP_TEMPLATE = PATH_TEMPLATE + "/lyaps/lyap_{}.hdf5"
@@ -47,8 +49,6 @@ def test_1():
             if os.path.isfile(lyap_filename):
                 f_lyap = h5py.File(lyap_filename, 'r')
                 lyap_time_series = np.array(f_lyap["lyap_"+str(i)])
-                plt.plot(lyap_time_series)
-                plt.show()
                 mags.append(np.linalg.norm(spinlib.return_magnetization(s0)))
                 lyaps.append(lyap_time_series[-1])
                 f_lyap.close()
@@ -64,6 +64,12 @@ def test_1():
     plt.legend()
     plt.show()
 def test_2():
+    """
+    To check the scaling of the prefactor for the initial t^2 dependence of s_z_var with delta
+    using averaging over initial states
+
+    Uses cluster data
+    """
     deltas = [10,20,40,100,150,200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950]
     N = 500
     mean_speeds =[]
@@ -73,7 +79,6 @@ def test_2():
     PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
     LYAP_TEMPLATE = PATH_TEMPLATE + "/lyaps/lyap_{}.hdf5"
     INIT_TEMPLATE = PATH_TEMPLATE + "/init_state/s0_{}_{}.hdf5"
-    OBS_TEMPLATE = PATH_TEMPLATE + "/observables/re_observables_{}_{}.hdf5"  
 
     for delta in deltas:
         continue
@@ -102,12 +107,10 @@ def test_2():
     plt.legend()
 
     plt.show()
-
-
-
-
-"""4th power test"""
 def test_3():
+    """
+    Checking scaling of coeffeicient in front of t^2 for bondz_mean with delta
+    """
     deltas = [10,20,40,100,150,200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950]
     N = 500
     mean_speeds =[]
@@ -149,38 +152,3 @@ def test_3():
     plt.legend()
 
     plt.show()
-
-def test_4():
-    evals =100
-    n_evals = 100
-
-    deltas = [10,20,40,100,150,200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900,
-            950,1000]
-    for filename in [ "var_triggers_all.pickle"]:
-        with open("../cluster_data_analysis/cache/"+filename, 'rb') as fp:
-            t_odes,therm_times_all,lyaps, magnetizations,therm_sequence_all,angles= pickle.load(fp)
-        observable = "bondz_mean"
-        #observable = "s_z_var"
-        therm_times=therm_times_all[observable]
-        therm_sequence=therm_sequence_all[observable]
-        i = 0
-        for observable in [ "s_z_var","bondz_mean"]:
-            for N in [100,1000]:
-                therm_times=therm_times_all[observable]
-                therm_sequence=therm_sequence_all[observable]
-                #plt.xscale("log")
-                #plt.yscale("log")
-                for delta in [1100]:
-                    #plt.hist(therm_times[N][delta],bins = 30,label = "$\delta$: " + str(0.001*delta)+ ", N:"+str(N)+ ", t_ode:" + str(t_odes[N][delta]), histtype="step" )
-                    plt.plot(np.linspace(0,t_odes[N][delta],801),np.array(therm_sequence[N][delta]), label = observable+ " for N = " + str(N))
-                    #plt.suptitle("Histogram of thermalization times at $\delta =$" + str(0.001*delta))
-    #plt.plot([0,800],[0.3,0.3])
-    #plt.plot([0,800],[0.296,0.296])
-    plt.grid()
-    plt.legend()
-    #plt.suptitle("Average var_z plot")
-    plt.xlabel("$T_{ODE}$")
-    plt.ylabel(r"$\overline{\mathcal{O}(t)}$")
-    #plt.xlabel("$\delta$")
-    plt.show()
-test_4()

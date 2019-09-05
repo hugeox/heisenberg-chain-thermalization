@@ -178,8 +178,8 @@ def bondz2_mean(s):
 
 #CODE FOR MONTE CARLO CALCULATIONS FOLLOWS
 def s_perp(s):
-    """two perpendicular components of s to magnetization
-    One of them is in xy plane
+    """ two random perpendicular components of s to magnetization
+        and the parallel component to magnetization
     """
     if len(s)%3!=0:
         raise Exception("Not 3D spins" + str(len(s)))
@@ -201,29 +201,29 @@ def s_perp(s):
     sperp3 = m[0]*sx + m[1] * sy + m[2] * sz
     return sperp,sperp2,sperp3
 def s_perp_var(s):
-    """variances of two perpendicular components of s to magnetization
-    one of them in xy plane and the parallel component
+    """variances of  two random perpendicular components of s to magnetization
+     and the parallel component
     """
     sperp1,sperp2,sperp3 = s_perp(s)
     return np.var(sperp1),np.var(sperp2),np.var(sperp3)
 
 def bond_perp(s):
-    """energies stored in the two perpendicular components to magnetization
-    One of them is in xy plane
+    """energies stored in the  two random perpendicular components to magnetization
+     and in the parallel ( to magnetization) component of spins
     """
     sperp1,sperp2,sperp3 = s_perp(s)
     return np.multiply(sperp1,np.roll(sperp1,1)),np.multiply(sperp2,np.roll(sperp2,1)),\
                 np.multiply(sperp3,np.roll(sperp3,1))
 
 def bond_perp_mean(s):
-    """means for the energies stored in the two perpendicular components to magnetization
-    One of them is in xy plane
+    """means for the energies stored in the  two random perpendicular components to magnetization
+     and in the parallel ( to magnetization) component of spins
     """
     e1,e2,e3 = bond_perp(s)
     return np.mean(e1),np.mean(e2),np.mean(e3)
 def bond_perp_var(s):
-    """variances for the energies stored in the two perpendicular components to magnetization
-    One of them is in xy plane
+    """variances for the energies stored in the  two random perpendicular components to magnetization
+     and in the parallel ( to magnetization) component of spins
     """
     e1,e2,e3 = bond_perp(s)
     return np.var(e1),np.var(e2),np.var(e3)
