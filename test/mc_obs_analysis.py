@@ -25,7 +25,7 @@ delta = 400
 starting_counter = 400
 n_evals = 100
 
-for delta in [200,500,800]:
+for delta in [200,250,500,800]:
     f_in = h5py.File('../data/mc_observables_{}_{}.hdf5'.format(delta,0), 'r')
     s_perp_vars = np.array(f_in["s_perp_vars"])
     bond_perp_means = np.array(f_in["bond_perp_means"])
@@ -53,7 +53,10 @@ for delta in [200,500,800]:
             magds.append(i*step)
             print(len(means_low_mag))
 
-    plt.plot(magds,ts,label = r"$\delta = $" + str(0.001*delta))
+    if delta ==250:
+        plt.plot(magds,ts,label = r"$\delta = $" + str(0.001*delta) + ", N =100")
+    else:
+        plt.plot(magds,ts,label = r"$\delta = $" + str(0.001*delta) + ", N =1000")
     print(dict(zip(magds,ts)))
 k =np.linspace(0,0.25,30)
 

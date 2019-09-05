@@ -21,8 +21,9 @@ from observables import  s_z_var, bond_mean, bond_var, bond2_var, bond2_mean,bon
 import h5py
 
 
+#N=100,delta=250
+#N=1000 - others
 N = 100
-delta = 400
 starting_counter = 400
 n_evals = 100
 print("N = ", N,", starting_counter = ", starting_counter,  ", n_evals = ", n_evals)
