@@ -98,7 +98,9 @@ def plot_means(data, N, observable, method, fit_range=None, plot = True,multipli
     """Getting time at which average goes over threshold"""
     mean_therm_times =[]
     hams = []
-    for delta in therm_times.keys():
+    deltas = list(therm_times.keys())
+    deltas.sort()
+    for delta in deltas:
         if delta>1000:
             continue
         mean_therm_times.append(np.mean(therm_times[delta]))
@@ -158,7 +160,9 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
     """Getting time at which average goes over threshold"""
     mean_therm_times =[]
     hams = []
-    for delta in therm_sequence.keys():
+    deltas = list(therm_sequence.keys())
+    deltas.sort()
+    for delta in deltas:
         if delta>1000:
             continue
         if observable == "bondz_mean":

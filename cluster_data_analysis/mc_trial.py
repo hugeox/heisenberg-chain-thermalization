@@ -176,6 +176,7 @@ def generate_data(Ns, deltas, n_evals,evals,OBS_TEMPLATE, LYAP_TEMPLATE = "{}_{}
 
 def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = True, mags = []):
     mag_vals = {0.0: 0.33332738590880195, 0.025: 0.33307956586891685, 0.05: 0.3326564798699867, 0.07500000000000001: 0.3320883979754039, 0.1: 0.3313545522832395, 0.125: 0.3302569822117752, 0.15000000000000002: 0.3290837899991117, 0.17500000000000002: 0.327625550776773, 0.2: 0.32559085983104563, 0.225: 0.32329927512893614 }
+    megam = [0,25,50,75,100,125,150,175,200,225]
     multiplier = 1
 
     plt.xscale("log")
@@ -189,38 +190,38 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
     """Getting time at which average goes over threshold"""
     mean_therm_times =[]
     hams = []
-    errs = []
-    for delta in therm_sequence.keys():
-        
-        temp_sum = 0
-        for mag in mags[N][delta]:
-            temp_sum += mag_vals[return_closest(mag,mag_vals.keys())]
-        true_average = temp_sum/len(mags[N][delta])
-        if delta>1000:
+    deltas =list(t_odes[N].keys())
+    deltas.sort()
+    for delta in deltas:
+        if delta>900:
             continue
-        if observable == "bondz_mean":
-            limit = (1 - 0.001*delta)/3
-        else:
-            limit = 0.3333333
-            limit = true_average
-        if method[:3]=="rel":
-            threshold = limit * float(method[3:])
-        else:
-            threshold = limit - float(method[3:])
-        if threshold >0:
-            if therm_sequence[delta][-1] > threshold:
-                index = np.where(therm_sequence[delta] > threshold) [0][0]
-                t_therm = t_odes[N][delta] * (index) / len(therm_sequence[delta])
-                mean_therm_times.append(t_therm)
+        t_therm = 0
+        for megamacek in megam:
+            if type(therm_sequence[1000*delta+megamacek])==np.float64:
+                continue
+
+        
+            if observable == "bondz_mean":
+                limit = (1 - 0.001*delta)/3
             else:
-                mean_therm_times.append(np.inf)
-        else:
-            mean_therm_times.append(np.inf)
+                limit = mag_vals[return_closest(megamacek/1000,mag_vals.keys())]
+            if method[:3]=="rel":
+                threshold = limit * float(method[3:])
+            else:
+                threshold = limit - float(method[3:])
+            if threshold >0:
+                if therm_sequence[1000*delta + megamacek][-1] > threshold:
+                    index = np.where(therm_sequence[1000*delta + megamacek] > threshold) [0][0]
+                    mag_factor = len([x for x in mags[N][delta] if megamacek==return_closest(1000*x,megam)])/len(mags[N][delta])
+                    t_therm +=  t_odes[N][delta] * (index) / len(therm_sequence[delta]) * mag_factor
+                else:
+                    t_therm += np.inf
+        mean_therm_times.append(t_therm)
         if delta > 1000:
             hams.append(2-0.001*delta)
         else:
             hams.append(0.001*delta)
-        errs.append(t_odes[N][delta]  / len(therm_sequence[delta]))
+        temp_sum = 0
     hams_log = np.log(np.array(hams))
     mean_therm_times_log = np.log(mean_therm_times)
     if plot:
@@ -245,7 +246,11 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
 pickle_name = "../data/mc_experiment.pickle"
 pickle_name = "../data/mc_binned_experiment.pickle"
 
-PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
+try:
+    PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
+except:
+    print("CHAIN_PROJECT_DIR not found, can only work from cache!")
+    PATH_TEMPLATE = ""
 
 LYAP_TEMPLATE = PATH_TEMPLATE + "/lyaps/lyap_{}.hdf5"
 OBS_TEMPLATE = PATH_TEMPLATE + "/observables/re_observables_{}_{}.hdf5"  
@@ -282,12 +287,13 @@ data_analysis_lib.full()
 if True:
     observable = "s_z_var"
 
-    #plot_smoothed(therm_sequence_all,N,observable,"abs0.02",t_odes,fit_range = (2,15),mags = magnetizations)
+    plot_smoothed(therm_sequence_all,N,observable,"abs0.02",t_odes,fit_range = (3,12),mags = magnetizations)
+    plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (3,12),mags = magnetizations)
     #plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (2,15),mags = magnetizations)
-    data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.01",t_odes,fit_range = (3,15))
-    data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (1,15), multiplier =1)
+    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.01",t_odes,fit_range = (3,15))
+    #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (1,15), multiplier =1)
     #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02", t_odes,fit_range = (1,15), multiplier =100)
-    data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (3,14), multiplier = 1)
+    #data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (3,14), multiplier = 1)
 else:
     observable = "bondz_mean"
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (2,10), multiplier =10)
@@ -307,6 +313,8 @@ mags =[]
 hams_lyap =[]
 for delta in magnetizations[1000].keys():
     mags.append(np.mean(magnetizations[1000][delta]))
+    if delta==200:
+        print (delta,mags[-1])
     if delta < 1000:
         hams_lyap.append(0.001*delta)
     else:
@@ -318,6 +326,7 @@ plt.xlabel(r"$\delta$ = 1 + $\epsilon$")
 plt.legend()
 plt.show()
 
+exit()
 
 """
 different triggers difference for averaged time evolution

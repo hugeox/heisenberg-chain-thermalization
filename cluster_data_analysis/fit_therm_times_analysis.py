@@ -35,7 +35,11 @@ assumed directory structure:
 
 pickle_name = "../data/var_triggers_all_new.pickle"
 
-PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
+try:
+    PATH_TEMPLATE = os.environ['CHAIN_PROJECT_DIR'] + "/N_{}/delta_{}"
+except:
+    print("CHAIN_PROJECT_DIR not found, can only work from cache!")
+    PATH_TEMPLATE = ""
 LYAP_TEMPLATE = PATH_TEMPLATE + "/lyaps/lyap_{}.hdf5"
 OBS_TEMPLATE = PATH_TEMPLATE + "/observables/re_observables_{}_{}.hdf5"  
 
@@ -69,13 +73,13 @@ cmap=plt.get_cmap('tab10')
 data_analysis_lib.full()
 #methods = ['abs','rel','','abs0.03','rel0.8','first']
 
-if False:
+if True:
     observable = "s_z_var"
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02",
                               t_odes,fit_range = (2,16), multiplier =1)
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",
                               t_odes,fit_range = (2,16), multiplier =1)
-    data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (2,15), multiplier = 0.1)
+    #data_analysis_lib.plot_means(therm_times_all,N,observable,"first",fit_range = (2,15), multiplier = 0.1)
     plt.suptitle(r"$\operatorname{Var}_z$ ")
 else:
     observable = "bondz_mean"
