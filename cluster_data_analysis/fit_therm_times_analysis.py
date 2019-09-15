@@ -66,14 +66,22 @@ else:
 i = 0
 Ns =[1000]
 N=Ns[0]
-deltas = t_odes[Ns[0]].keys()
+deltas = list(t_odes[Ns[0]].keys())
+deltas.sort()
+
+plt.hist(magnetizations[100][250],range = (0,0.5), 
+        bins = 40, density = True)
+plt.grid()
+plt.show()
+print("100", np.mean(magnetizations[100][250]))
+
 print(t_odes[N])
 
 cmap=plt.get_cmap('tab10')
-data_analysis_lib.full()
+#data_analysis_lib.half()
 #methods = ['abs','rel','','abs0.03','rel0.8','first']
-
-if True:
+print([len(magnetizations[1000][x]) for x in magnetizations[1000]])
+if False:
     observable = "s_z_var"
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02",
                               t_odes,fit_range = (2,16), multiplier =1)
@@ -97,7 +105,7 @@ lyap_exps = []
 mean_lyaps = []
 lyap_errs = []
 for delta in list(deltas)[1:]: #start further due to huge error 
-    N=500
+    N=100
     """Lyaps"""
     if delta < 1000:
         hams_lyap.append(0.001*delta)
@@ -126,6 +134,7 @@ plt.show()
 
 
 exit()
+quit()
 
 mags =[]
 hams_lyap =[]

@@ -199,8 +199,8 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
             ys = polynomial(hams_log)
             plt.plot(hams[start:end], multiplier*np.exp(ys[start:end]),color = cmap.colors[1])
             #, label = "N=" + str(N)+ ",exponent = " + str(coefficients[0])[:7])
-            plt.scatter(hams,multiplier*np.array(mean_therm_times), label = prefix + " N = " + str(N) +
-                    ", exponent " + str(coefficients[0])[:5] + ", resiuduals " +str(residuals[0])[:5])
+            plt.scatter(hams,multiplier*np.array(mean_therm_times), label = prefix  +
+                    ", exp:" + str(coefficients[0])[:5] + ", res:" +str(residuals[0])[:6])
         else:
             plt.scatter(hams,mean_therm_times, label = prefix + " N = " + str(N))
     return dict(zip(hams,mean_therm_times))

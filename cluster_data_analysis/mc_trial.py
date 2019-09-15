@@ -185,7 +185,7 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
     plt.ylabel("Thermalization time ")
     cmap=plt.get_cmap('tab10')
     therm_sequence = data[observable][N]
-    prefix = r"$T_{therm}$ from $\overline{\mathcal{O}(t)}, $" + " {}, method: {}".format(observable,method)
+    prefix = r"$T_{th}$ from $\overline{\mathcal{O}(t)}, $" + " {}, method: {}".format(observable,method)
 
     """Getting time at which average goes over threshold"""
     mean_therm_times =[]
@@ -236,8 +236,8 @@ def plot_smoothed(data, N, observable, method, t_odes, fit_range=None, plot = Tr
             plt.plot(hams[start:end], multiplier*np.exp(ys[start:end]),color = cmap.colors[1])
             #, label = "N=" + str(N)+ ",exponent = " + str(coefficients[0])[:7])
             plt.scatter(hams,multiplier*np.array(mean_therm_times),
-                        label = prefix + " N = " + str(N) +
-                    ", exponent " + str(coefficients[0])[:7] + ", resiuduals " +str(residuals[0])[:7])
+                        label = prefix +
+                    ", exp:" + str(coefficients[0])[:5] + ", res: " +str(residuals[0])[:6])
         else:
             plt.scatter(hams,mean_therm_times, label = prefix + " N = " + str(N))
     return dict(zip(hams,mean_therm_times))
@@ -283,12 +283,12 @@ print(t_odes[N])
 print([len(magnetizations[1000][x]) for x in magnetizations[1000].keys()])
 
 cmap=plt.get_cmap('tab10')
-data_analysis_lib.full()
+#data_analysis_lib.half()
 if True:
     observable = "s_z_var"
 
-    plot_smoothed(therm_sequence_all,N,observable,"abs0.02",t_odes,fit_range = (3,12),mags = magnetizations)
-    plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (3,12),mags = magnetizations)
+    plot_smoothed(therm_sequence_all,N,observable,"abs0.02",t_odes,fit_range = (1,13),mags = magnetizations)
+    plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (1,13),mags = magnetizations)
     #plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (2,15),mags = magnetizations)
     #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.01",t_odes,fit_range = (3,15))
     #data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.04",t_odes,fit_range = (1,15), multiplier =1)
@@ -300,11 +300,19 @@ else:
     data_analysis_lib.plot_smoothed(therm_sequence_all,N,observable,"abs0.02", t_odes,fit_range = (2,9), multiplier =10)
 
 
+
 plt.grid()
 plt.legend()
 plt.xlabel(r"$\delta$ = 1 + $\epsilon$")
 plt.ylabel("Thermalization time ")
 
+plt.show()
+
+plt.plot(therm_sequence_all[observable][1000][200 * 1000 + 200], label = "200")
+plt.plot(therm_sequence_all[observable][1000][200 * 1000 + 225], label = "225")
+plt.plot(therm_sequence_all[observable][1000][200 * 1000 + 175], label = "175")
+plt.plot(therm_sequence_all[observable][1000][200 * 1000 + 150], label = "150")
+plt.legend()
 plt.show()
 
 
@@ -326,10 +334,10 @@ plt.xlabel(r"$\delta$ = 1 + $\epsilon$")
 plt.legend()
 plt.show()
 
-exit()
 
 """
 different triggers difference for averaged time evolution
+Warning - the following code is not nice 
 
 """
 mags = [0,25,50,75,100,125,150,175,200,225]
@@ -341,17 +349,19 @@ N = 1000
 observable = "s_z_var"
 therm_sequence = therm_sequence_all[observable][N]
 for m in mags:
-    limit = mag_vals[return_closest(m/1000,mag_vals.keys())]
-    print(m,limit)
-    threshold = limit -0.03
-    if type(therm_sequence[1000*delta+m])!=np.float64:
-        mags_red.append(m/1000)
-        if therm_sequence[1000*delta+m][-1] > threshold:
-            index = np.where(therm_sequence[1000*delta+m] > threshold) [0][0]
-            t_therm = t_odes[N][delta] * (index) / len(therm_sequence[delta])
-            mean_therm_times.append(t_therm)
-        else:
-            mean_therm_times.append(np.inf)
+	limit = mag_vals[return_closest(m/1000,mag_vals.keys())]
+	print(m,limit)
+	threshold = limit -0.03
+	if type(therm_sequence[1000*delta+m])!=np.float64:
+		mags_red.append(m/1000)
+		numa = len([x for x in magnetizations[N][delta] if (x>=m/1000 and x<(m+25)/1000)])
+		plt.text(m/1000,60,"#"+str(numa))
+		if therm_sequence[1000*delta+m][-1] > threshold:
+			index = np.where(therm_sequence[1000*delta+m] > threshold) [0][0]
+			t_therm = t_odes[N][delta] * (index) / len(therm_sequence[delta])
+			mean_therm_times.append(t_therm)
+		else:
+			mean_therm_times.append(np.inf)
 
 plt.scatter(mags_red,mean_therm_times,
             label = r"Binned $T_{therm}$ by magnetization from $\overline{\mathcal{O}}(t,|\vec{m}|)$, using $\mathcal{O}_{MC}(|\vec{m}|)$ " )

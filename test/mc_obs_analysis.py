@@ -25,7 +25,7 @@ delta = 400
 starting_counter = 400
 n_evals = 100
 
-for delta in [200,250,500,800]:
+for delta in [200,250,500,800][1:2]:
     f_in = h5py.File('../data/mc_observables_{}_{}.hdf5'.format(delta,0), 'r')
     s_perp_vars = np.array(f_in["s_perp_vars"])
     bond_perp_means = np.array(f_in["bond_perp_means"])
@@ -38,7 +38,11 @@ for delta in [200,250,500,800]:
             bond_perp_means = np.concatenate((bond_perp_means,np.array(f_in["bond_perp_means"])))
             mags = np.concatenate((mags,np.array(f_in["mags"])))
             f_in.close()
-
+    print(delta, np.mean(mags))
+    plt.hist(mags,range=(0,0.5),bins = 40, density = True)
+    plt.grid()
+    plt.show()
+    quit()
     means = np.array(s_perp_vars)[:,0]
     #means = np.array(bond_perp_means)[:,0]
 
